@@ -1,7 +1,9 @@
 package com.bankapp;
 
-import java.util.Scanner;
 import com.bankapp.services.AccountService;
+import com.bankapp.services.AccountServiceImpl;
+
+import java.util.Scanner;
 
 
 public class Application {
@@ -15,11 +17,11 @@ public class Application {
     //an attribute to store account no of the logged in user
     private int loggedInAccountNo;
 
-    public Application () {
-        scanner = new Scanner(System.in);
-        accountService = new AccountService();
-        isLoggedIn = false;
-        loggedInAccountNo = 0;
+    public Application (AccountService accountService) {
+        scanner=new Scanner(System.in);
+        this.accountService=accountService;
+        isLoggedIn=false;
+        loggedInAccountNo=0;
     }
 
     private void start () {
@@ -183,8 +185,10 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        Application application = new Application();
+        AccountService accountService = new AccountServiceImpl();
+        Application application = new Application(accountService);
         application.start();
+
     }
 
 
