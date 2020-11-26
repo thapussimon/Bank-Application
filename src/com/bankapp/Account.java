@@ -1,3 +1,5 @@
+package com.bankapp;
+
 public class Account {
     private int accountNo;
     private String password;
@@ -41,7 +43,7 @@ public class Account {
 
     @Override
     public String toString() {
-        return "Account No: "+ accountNo +"\n"+"Balance: "+balance;
+        return "bankapp.Account No: "+ accountNo +"\n"+"Balance: "+balance;
 
     }
 }
