@@ -2,6 +2,8 @@ package com.bankapp;
 
 import com.bankapp.services.AccountService;
 import com.bankapp.services.AccountServiceImpl;
+import com.bankapp.services.TransactionService;
+import com.bankapp.services.TransactionServiceImpl;
 
 import java.util.Scanner;
 
@@ -10,6 +12,7 @@ public class Application {
     private Scanner scan;
 
     private AccountService accountService;
+    private TransactionService transactionService;
 
     //a flag used to check whether a user is logged in or not
     private boolean isLoggedIn;
@@ -17,9 +20,10 @@ public class Application {
     //an attribute to store account no of the logged in user
     private int loggedInAccountNo;
 
-    public Application (AccountService accountService) {
+    public Application (AccountService accountService, TransactionService transactionService) {
         scan = new Scanner(System.in);
         this.accountService = accountService;
+        this.transactionService = transactionService;
         isLoggedIn = false;
         loggedInAccountNo = 0;
     }
@@ -28,7 +32,7 @@ public class Application {
         boolean flag = true;
 
         System.out.println("*********************");
-        System.out.println("********Bank-App*****");
+        System.out.println("********U-Bank*******");
         System.out.println("*********************");
 
         do {
@@ -184,7 +188,12 @@ public class Application {
         System.out.println("**Account Statement**");
         System.out.println("*********************");
 
-        System.out.println("Print account statement for account " + loggedInAccountNo);
+        Transaction[] transactions = transactionService.getTransactions(loggedInAccountNo);
+        if (transactions == null) {
+            System.out.println("This feature is not available for mobile");
+        } else {
+            System.out.println("Print account statement for account " + loggedInAccountNo);
+        }
     }
 
     private void logout () {
@@ -199,10 +208,11 @@ public class Application {
 
     public static void main(String[] args) {
         AccountService accountService = new AccountServiceImpl();
-        Application application = new Application(accountService);
+        TransactionServiceImpl transactionService = new TransactionServiceImpl();
+        transactionService.setLoggedInSystem("DESKTOP");
+        Application application = new Application(accountService, transactionService);
         application.start();
     }
-
 }
 
 
