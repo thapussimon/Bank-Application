@@ -1,9 +1,6 @@
 package com.bankapp;
 
-import com.bankapp.services.AccountService;
-import com.bankapp.services.AccountServiceImpl;
-import com.bankapp.services.TransactionService;
-import com.bankapp.services.TransactionServiceImpl;
+import com.bankapp.services.*;
 
 import java.util.Scanner;
 
@@ -32,7 +29,7 @@ public class Application {
         boolean flag = true;
 
         System.out.println("*********************");
-        System.out.println("********U-Bank*******");
+        System.out.println("********Bank*********");
         System.out.println("*********************");
 
         do {
@@ -208,8 +205,7 @@ public class Application {
 
     public static void main(String[] args) {
         AccountService accountService = new AccountServiceImpl();
-        TransactionServiceImpl transactionService = new TransactionServiceImpl();
-        transactionService.setLoggedInSystem("DESKTOP");
+        TransactionService transactionService = new TransactionServiceImplMobile();
         Application application = new Application(accountService, transactionService);
         application.start();
     }
