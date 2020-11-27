@@ -7,10 +7,10 @@ import java.util.Scanner;
 
 
 public class Application {
-    //This contains the UI logic
+    private Scanner scan;
 
-    private Scanner scanner;
     private AccountService accountService;
+
     //a flag used to check whether a user is logged in or not
     private boolean isLoggedIn;
 
@@ -18,17 +18,17 @@ public class Application {
     private int loggedInAccountNo;
 
     public Application (AccountService accountService) {
-        scanner=new Scanner(System.in);
-        this.accountService=accountService;
-        isLoggedIn=false;
-        loggedInAccountNo=0;
+        scan = new Scanner(System.in);
+        this.accountService = accountService;
+        isLoggedIn = false;
+        loggedInAccountNo = 0;
     }
 
     private void start () {
         boolean flag = true;
 
         System.out.println("*********************");
-        System.out.println("*******Bank App******");
+        System.out.println("********Bank-App*****");
         System.out.println("*********************");
 
         do {
@@ -42,7 +42,7 @@ public class Application {
             System.out.println("8. Exit");
 
             System.out.print("\nPlease select an option: ");
-            String choice = scanner.nextLine();
+            String choice = scan.nextLine();
 
             switch (choice) {
                 case "1": login(); break;
@@ -73,12 +73,16 @@ public class Application {
         System.out.println("*********************");
 
         System.out.print("Account No.:");
-        int accountNo = Integer.parseInt(scanner.nextLine());
+        int accountNo = Integer.parseInt(scan.nextLine());
 
         System.out.print("Password:");
-        String password = scanner.nextLine();
+        String password = scan.nextLine();
 
-        if (accountService.login(accountNo, password)) {
+        Account account = new Account();
+        account.setAccountNo(accountNo);
+        account.setPassword(password);
+
+        if (accountService.login(account)) {
             System.out.println("You are logged in.");
             isLoggedIn = true;
             loggedInAccountNo = accountNo;
@@ -102,12 +106,16 @@ public class Application {
         System.out.println("*********************");
 
         System.out.print("Account No.:");
-        int accountNo = Integer.parseInt(scanner.nextLine());
+        int accountNo = Integer.parseInt(scan.nextLine());
 
         System.out.print("Password:");
-        String password = scanner.nextLine();
+        String password = scan.nextLine();
 
-        if (accountService.register(accountNo, password)) {
+        Account account = new Account();
+        account.setAccountNo(accountNo);
+        account.setPassword(password);
+
+        if (accountService.register(account)) {
             System.out.println("You are logged in.");
             isLoggedIn = true;
             loggedInAccountNo = accountNo;
@@ -140,7 +148,7 @@ public class Application {
         System.out.println("*********************");
 
         System.out.print("Amount: ");
-        int amount = Integer.parseInt(scanner.nextLine());
+        int amount = Integer.parseInt(scan.nextLine());
 
         System.out.println("Deposit " + amount + " rs to account " + loggedInAccountNo);
     }
@@ -156,7 +164,7 @@ public class Application {
         System.out.println("*********************");
 
         System.out.print("Amount: ");
-        int amount = Integer.parseInt(scanner.nextLine());
+        int amount = Integer.parseInt(scan.nextLine());
 
         Account account = accountService.withdraw(loggedInAccountNo, amount);
         if (account == null) {
@@ -193,18 +201,7 @@ public class Application {
         AccountService accountService = new AccountServiceImpl();
         Application application = new Application(accountService);
         application.start();
-
     }
-
-
-
-
-
-
-
-
-
-
 
 }
 
