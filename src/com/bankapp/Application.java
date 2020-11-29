@@ -113,6 +113,7 @@ public class Application {
 
     private Account getAccountFromUser() {
         System.out.print("Account No.:");
+
         int accountNo = Integer.parseInt(scan.nextLine());
 
         System.out.print("Password:");
@@ -148,7 +149,13 @@ public class Application {
         System.out.println("*********************");
 
         System.out.print("Amount: ");
-        int amount = Integer.parseInt(scan.nextLine());
+        int amount = 0;
+        try{
+            amount=Integer.parseInt(scan.nextLine());
+        }catch (NumberFormatException ne){
+            System.out.println("Amount should be in Numeric Form");
+            return;
+        }
 
         Account account = accountService.deposit(loggedInAccountNo, amount);
         if (account == null) {
@@ -169,7 +176,13 @@ public class Application {
         System.out.println("*********************");
 
         System.out.print("Amount: ");
-        int amount = Integer.parseInt(scan.nextLine());
+        int amount = 0;
+        try{
+            amount=Integer.parseInt(scan.nextLine());
+        }catch (NumberFormatException ne){
+            System.out.println("Amount should be in Numeric Form");
+            return;
+        }
 
         Account account = accountService.withdraw(loggedInAccountNo, amount);
         if (account == null) {
