@@ -1,6 +1,6 @@
 package com.bankapp.services;
 
-import com.bankapp.Transaction;
+import com.bankapp.dtos.Transaction;
 
 public class TransactionServiceImplMobile implements TransactionService {
     @Override

@@ -1,4 +1,4 @@
-package com.bankapp;
+package com.bankapp.dtos;
 
 public class Transaction {
     private int accountNo;
@@ -52,6 +52,5 @@ public class Transaction {
     public String toString() {
         return date + '\t' + action + '\t' + amount;
     }
-
 
 }

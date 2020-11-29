@@ -1,4 +1,4 @@
-package com.bankapp;
+package com.bankapp.dtos;
 
 public class Account {
     private int accountNo;
@@ -6,7 +6,6 @@ public class Account {
     private int balance;
 
     public Account() {
-
     }
 
     public Account(int accountNo, String password, int balance) {
@@ -31,11 +30,9 @@ public class Account {
         this.password = password;
     }
 
-
     public int getBalance() {
         return balance;
     }
-
 
     public void setBalance(int balance) {
         this.balance = balance;
@@ -43,7 +40,7 @@ public class Account {
 
     @Override
     public String toString() {
-        return "bankapp.Account No: "+ accountNo +"\n"+"Balance: "+balance;
-
+        return  "AccountNo: " + accountNo + "\n" +
+                "Balance: " + balance;
     }
 }

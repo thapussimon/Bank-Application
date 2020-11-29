@@ -1,7 +1,6 @@
 package com.bankapp.services;
 
-import com.bankapp.Account;
-import com.bankapp.Transaction;
+import com.bankapp.dtos.Account;
 
 public interface AccountService {
     boolean login (Account account);
