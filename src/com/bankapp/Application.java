@@ -283,7 +283,7 @@ public class Application {
 
     public static void main(String[] args) {
         TransactionService transactionService = TransactionServiceImpl.getInstance();
-        AccountService accountService = new AccountServiceImpl(transactionService);
+        AccountService accountService = AccountServiceImpl.getInstance();
         Application application = new Application(accountService, transactionService);
         application.start();
     }
