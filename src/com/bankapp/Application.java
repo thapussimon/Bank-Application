@@ -2,6 +2,10 @@ package com.bankapp;
 
 import com.bankapp.dtos.Account;
 import com.bankapp.dtos.Transaction;
+import com.bankapp.exceptions.AccountAlreadyRegisteredException;
+import com.bankapp.exceptions.AccountNotFoundException;
+import com.bankapp.exceptions.IncorrectPasswordException;
+import com.bankapp.exceptions.InsufficientBalanceException;
 import com.bankapp.services.*;
 
 import java.util.Scanner;
@@ -19,7 +23,7 @@ public class Application {
     //an attribute to store account no of the logged in user
     private int loggedInAccountNo;
 
-    public Application (AccountService accountService, TransactionService transactionService) {
+    public Application(AccountService accountService, TransactionService transactionService) {
         scan = new Scanner(System.in);
         this.accountService = accountService;
         this.transactionService = transactionService;
@@ -27,7 +31,7 @@ public class Application {
         loggedInAccountNo = 0;
     }
 
-    private void start () {
+    private void start() {
         boolean flag = true;
 
         System.out.println("*********************");
@@ -48,15 +52,33 @@ public class Application {
             String choice = scan.nextLine();
 
             switch (choice) {
-                case "1": login(); break;
-                case "2": register(); break;
-                case "3": getAccount(); break;
-                case "4": deposit(); break;
-                case "5": withdraw(); break;
-                case "6": getAccountStatement(); break;
-                case "7": logout(); break;
-                case "8": flag=false; break;
-                default:  System.out.println("Error"); break;
+                case "1":
+                    login();
+                    break;
+                case "2":
+                    register();
+                    break;
+                case "3":
+                    getAccount();
+                    break;
+                case "4":
+                    deposit();
+                    break;
+                case "5":
+                    withdraw();
+                    break;
+                case "6":
+                    getAccountStatement();
+                    break;
+                case "7":
+                    logout();
+                    break;
+                case "8":
+                    flag = false;
+                    break;
+                default:
+                    System.out.println("Error");
+                    break;
             }
         } while (flag);
     }
@@ -65,7 +87,7 @@ public class Application {
     //If the user is already logged in, then he won't be able to login again.
     //Also a user can only login, if the account no and password provided by
     //the user are present in the accounts array.
-    private void login () {
+    private void login() {
         if (isLoggedIn) {
             System.out.println("You are already logged in.");
             return;
@@ -77,20 +99,29 @@ public class Application {
 
         Account account = getAccountFromUser();
 
-        if (accountService.login(account)) {
-            System.out.println("You are logged in.");
-            isLoggedIn = true;
-            loggedInAccountNo = account.getAccountNo();
-        } else {
-            System.out.println("Incorrect Username / Password");
+        try {
+            if (accountService.login(account)) {
+                System.out.println("You are logged in.");
+                isLoggedIn = true;
+                loggedInAccountNo = account.getAccountNo();
+            }
+        } catch (NullPointerException ne) {
+            System.out.println(ne.getMessage());
+
+        } catch (AccountNotFoundException ae) {
+            System.out.println(ae.getMessage());
+        } catch (IncorrectPasswordException ie) {
+            System.out.println(ie.getMessage());
         }
+
+
     }
 
     //This method is used to perform register function for the user.
     //If the user is already logged in, then he won't be able to register.
     //Also a user can only register, if the account no and password provided by
     //the user are not present in the accounts array.
-    private void register () {
+    private void register() {
         if (isLoggedIn) {
             System.out.println("You are already logged in.");
             return;
@@ -101,20 +132,33 @@ public class Application {
         System.out.println("*********************");
 
         Account account = getAccountFromUser();
-
-        if (accountService.register(account)) {
-            System.out.println("You are logged in.");
-            isLoggedIn = true;
-            loggedInAccountNo = account.getAccountNo();
-        } else {
-            System.out.println("User already exists.");
+        try {
+            if (accountService.register(account)) {
+                System.out.println("You are logged in.");
+                isLoggedIn = true;
+                loggedInAccountNo = account.getAccountNo();
+            }
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        } catch (AccountAlreadyRegisteredException e) {
+            System.out.println(e.getMessage());
         }
+
     }
 
     private Account getAccountFromUser() {
         System.out.print("Account No.:");
 
-        int accountNo = Integer.parseInt(scan.nextLine());
+        int accountNo = 0;
+        try {
+            accountNo = Integer.parseInt(scan.nextLine());
+            System.out.println("You entered: " + accountNo);
+        } catch (NumberFormatException ne) {
+            System.out.println("Account Number should be in Numeric Type");
+            return null;
+        } finally {
+            System.out.println("Current account no: " + accountNo);
+        }
 
         System.out.print("Password:");
         String password = scan.nextLine();
@@ -125,7 +169,7 @@ public class Application {
         return account;
     }
 
-    private void getAccount () {
+    private void getAccount() {
         if (!isLoggedIn) {
             System.out.println("You are not logged in.");
             return;
@@ -135,10 +179,14 @@ public class Application {
         System.out.println("*******Account*******");
         System.out.println("*********************");
 
-        System.out.println(accountService.getAccount(loggedInAccountNo));
+        try {
+            System.out.println(accountService.getAccount(loggedInAccountNo));
+        } catch (AccountNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    private void deposit () {
+    private void deposit() {
         if (!isLoggedIn) {
             System.out.println("You are not logged in.");
             return;
@@ -150,22 +198,24 @@ public class Application {
 
         System.out.print("Amount: ");
         int amount = 0;
-        try{
-            amount=Integer.parseInt(scan.nextLine());
-        }catch (NumberFormatException ne){
+        try {
+            amount = Integer.parseInt(scan.nextLine());
+        } catch (NumberFormatException ne) {
             System.out.println("Amount should be in Numeric Form");
             return;
         }
-
-        Account account = accountService.deposit(loggedInAccountNo, amount);
-        if (account == null) {
-            System.out.println("Could not deposit into account.");
-        } else {
+        Account account = null;
+        try {
+            account = accountService.deposit(loggedInAccountNo, amount);
             System.out.println("Money successfully deposited into account.");
+        } catch (AccountNotFoundException e) {
+            System.out.println(e.getMessage());
         }
+
+
     }
 
-    private void withdraw () {
+    private void withdraw() {
         if (!isLoggedIn) {
             System.out.println("You are not logged in.");
             return;
@@ -177,18 +227,21 @@ public class Application {
 
         System.out.print("Amount: ");
         int amount = 0;
-        try{
-            amount=Integer.parseInt(scan.nextLine());
-        }catch (NumberFormatException ne){
+        try {
+            amount = Integer.parseInt(scan.nextLine());
+        } catch (NumberFormatException ne) {
             System.out.println("Amount should be in Numeric Form");
             return;
         }
 
-        Account account = accountService.withdraw(loggedInAccountNo, amount);
-        if (account == null) {
-            System.out.println("Could not withdraw from account.");
-        } else {
+        Account account = null;
+        try {
+            account = accountService.withdraw(loggedInAccountNo, amount);
             System.out.println("Money successfully withdrawn from account.");
+        } catch (AccountNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (InsufficientBalanceException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -210,7 +263,7 @@ public class Application {
             System.out.println("No transaction exists for you.");
             return;
         }
-        for (Transaction transaction: transactions) {
+        for (Transaction transaction : transactions) {
             if (transaction == null) {
                 break;
             }
@@ -218,7 +271,7 @@ public class Application {
         }
     }
 
-    private void logout () {
+    private void logout() {
         if (!isLoggedIn) {
             System.out.println("You are not logged in.");
             return;
