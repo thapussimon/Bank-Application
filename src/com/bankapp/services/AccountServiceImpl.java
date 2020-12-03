@@ -7,7 +7,7 @@ import com.bankapp.dtos.Account;
 import com.bankapp.dtos.Transaction;
 import com.bankapp.exceptions.InsufficientBalanceException;
 
-public class AccountServiceImpl implements AccountService {
+public class AccountServiceImpl implements AccountService, Subject {
     private static AccountServiceImpl instance;
     //Account array to store account objects for the application, later in the course
     //this array will be replaced with database
@@ -16,37 +16,46 @@ public class AccountServiceImpl implements AccountService {
     //counter is used to track how many accounts are present in the account array
     private int counter;
 
-    public static AccountServiceImpl getInstance(){
-        if (instance==null){
-            return new AccountServiceImpl(TransactionServiceImpl.getInstance());
+
+    private Observer[] observers;
+    private int counterObservers;
+
+    private AccountServiceImpl() {
+        accounts = new Account[100];
+        counter = 0;
+        observers=new Observer[100];
+        counterObservers=0;
+
+    }
+
+    public static AccountServiceImpl getInstance() {
+        if (instance == null) {
+            ServiceFactory serviceFactory=new ServiceFactory();
+            instance=new AccountServiceImpl();
         }
         return instance;
     }
 
-    private TransactionService transactionService;
 
-    private AccountServiceImpl (TransactionService transactionService) {
-        accounts = new Account[100];
-        counter = 0;
-        this.transactionService = transactionService;
-    }
 
-    public boolean login (Account account) throws AccountNotFoundException,IncorrectPasswordException{
-        if (account==null){
+
+
+    public boolean login(Account account) throws AccountNotFoundException, IncorrectPasswordException {
+        if (account == null) {
             throw new NullPointerException("Account Object was null");
         }
         for (int i = 0; i < counter; i++) {
             if (account.getAccountNo() == accounts[i].getAccountNo() && account.getPassword().equals(accounts[i].getPassword())) {
                 return true;
-            }else if (account.getAccountNo()==accounts[i].getAccountNo() && !account.getPassword().equals(accounts[i].getPassword())){
+            } else if (account.getAccountNo() == accounts[i].getAccountNo() && !account.getPassword().equals(accounts[i].getPassword())) {
                 throw new IncorrectPasswordException("Password is not correct");
             }
         }
         throw new AccountNotFoundException("Account No does not exist");
     }
 
-    public boolean register (Account account) throws AccountAlreadyRegisteredException {
-        if (account==null){
+    public boolean register(Account account) throws AccountAlreadyRegisteredException {
+        if (account == null) {
             throw new NullPointerException("Account object was null");
         }
         for (int i = 0; i < counter; i++) {
@@ -61,13 +70,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getAccount(int accountNo) throws AccountNotFoundException{
-        for (int i=0; i<counter; i++) {
+    public Account getAccount(int accountNo) throws AccountNotFoundException {
+        for (int i = 0; i < counter; i++) {
             if (accounts[i].getAccountNo() == accountNo) {
                 return accounts[i];
             }
         }
-        throw new AccountNotFoundException("Account "+accountNo+"does not exist");
+        throw new AccountNotFoundException("Account " + accountNo + "does not exist");
     }
 
     @Override
@@ -80,7 +89,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setDate("DD/MM/YYYY");
         transaction.setAction("Deposit ");
         transaction.setAmount(amount);
-        System.out.println(transactionService.createTransaction(transaction));
+        notifyObserver(transaction);
 
         return account;
     }
@@ -105,8 +114,47 @@ public class AccountServiceImpl implements AccountService {
         transaction.setDate("DD/MM/YYYY");
         transaction.setAction("Withdraw");
         transaction.setAmount(amount);
-        System.out.println(transactionService.createTransaction(transaction));
+        notifyObserver(transaction);
 
         return account;
     }
+
+
+    //Here AccountServiceImpl class acts as the subject that is the observable
+    //And the TransactionServiceImpl class observes the AccountServiceImpl class
+    //Thus we use an observer pattern here
+    @Override
+    public void registerObserver(Observer observer) {
+        observers[counterObservers++]=observer;
+
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        int i=0;
+        for (;i<counterObservers;i++){
+            if (observers[i].equals(observer)){
+                break;
+            }
+        }
+
+        if (i<counterObservers){
+            for (;i<counterObservers;i++){
+                observers[i]=observers[i+1];
+            }
+            counterObservers--;
+        }
+    }
+
+    @Override
+    public void notifyObserver(Object data) {
+        for (Observer observer:observers){
+            if (observer==null){
+                break;
+            }
+            observer.update(data);
+        }
+    }
+
+
 }

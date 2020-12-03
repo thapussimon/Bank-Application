@@ -2,16 +2,22 @@ package com.bankapp.services;
 
 import com.bankapp.dtos.Transaction;
 
-public class TransactionServiceImpl implements TransactionService{
-    private static TransactionServiceImpl instance;
+public class TransactionServiceImpl implements TransactionService,Observer{
+    private static TransactionServiceImpl instance=new TransactionServiceImpl();
     private Transaction[] transactions;
     private int counter;
+    private Subject accountServiceSubject;
+    private ServiceFactory serviceFactory;
 
 
 
     private TransactionServiceImpl () {
         transactions = new Transaction[100];
         counter = 0;
+        serviceFactory=new ServiceFactory();
+        accountServiceSubject= (Subject) serviceFactory.getAccountService();
+        accountServiceSubject.registerObserver(this);
+
     }
 
     public static TransactionServiceImpl getInstance(){
@@ -37,5 +43,14 @@ public class TransactionServiceImpl implements TransactionService{
             }
         }
         return temp;
+    }
+
+    @Override
+    public void update(Object data) {
+        if (data instanceof Transaction){
+            Transaction temp= (Transaction) data;
+            createTransaction(temp);
+        }
+
     }
 }
